@@ -4,6 +4,7 @@
 // assignable. Negative assertions use @ts-expect-error, which fails to compile when the error it
 // claims goes away. Run via `npm run typecheck:types`.
 import * as jose from 'jose'
+import * as httpsig from 'jose/httpsig'
 import type { GeneratedSecret } from 'jose/key/generate/secret'
 import type { ImportedJWK } from 'jose/key/import'
 import { createPrivateKey, type JsonWebKey } from 'node:crypto'
@@ -488,4 +489,13 @@ async function payloadGenerics() {
   const _bad: jose.KeyObject = { type: 'totally-bogus' }
   const _good: jose.KeyObject = { type: 'secret' }
   const _types: Equals<jose.KeyObject['type'], 'private' | 'public' | 'secret'> = true
+}
+
+/* jose/httpsig */
+async function httpSignatures(data: Uint8Array) {
+  const signature = await httpsig.sign('ecdsa-p256-sha256', cryptoKey, data)
+  const _valid: boolean = await httpsig.verify('ES256', cryptoKey, signature, data)
+  const _open: httpsig.HTTPSignatureAlgorithm = anyString
+  // @ts-expect-error these primitives take a CryptoKey, never a raw secret
+  await httpsig.sign('hmac-sha256', secret, data)
 }
