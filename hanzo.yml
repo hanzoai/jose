@@ -8,4 +8,5 @@ test:
   - name: build
     run: |
       set -e
-      npm ci\n      npm run build
+      npm ci
+      npm run build
